@@ -13,6 +13,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	private static int tilesCount = 135;
 	public Tile tilePrefab;	//defined in GUI
 	public HighlightTileSprite highlightTileSpritePrefab;
+	public CharacterSprite characterSpritePrefab;
 	private Tile[] tiles = new Tile[tilesCount];
 
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
@@ -46,41 +47,45 @@ public class TaichoGameGrid : MonoBehaviour {
 				Tile tile = (Tile)Instantiate(tilePrefab, new Vector3(transform.position.x + xOffset, transform.position.y, transform.position.z + zOffset), transform.rotation);
 				HighlightTileSprite highlight = (HighlightTileSprite)Instantiate(highlightTileSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
 				tile.initializeHighlighter(highlight);
+				CharacterSprite sprite = (CharacterSprite)Instantiate(characterSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
+				tile.initializeSprite(sprite);
+
 
 				if ( (col < 3 && (row < 3 || row > 5) || (col > 11 && (row < 3 || row > 5)))){
 					//Debug.Log("skipping displaying tile at coordinate column[" + col + "] - row[" + row + "]");
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.NONE), Location.OUT_OF_BOUNDS, new Coordinate(col, row, index));
 					//TODO replace with actual unstack button logic
-					if (index == 1) {
+					if (index == 8) {
 						tile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
 					} else {
-						tile.gameObject.GetComponent<Renderer>().material.color = Color.clear;
+						tile.hide ();
 					}
 				} else if (row == 4 && col == 1) {
 					// position is Player One Taicho
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_ONE), Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
-					tile.gameObject.GetComponent<Renderer>().material.color = Color.red;
 				} else if (row == 4 && col == 13) {
 					// position is Player Two Taicho
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_TWO), Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
-					tile.gameObject.GetComponent<Renderer>().material.color = Color.blue;
 				} else if (((col == 4) && (row % 2 == 0))
 				           || ((col == 3 || col == 5) && (row % 2 == 1))) {
 					// position is Player One Samurai
 					taicho.board[row, col] = new BoardComponent(new OneUnit(Player.PLAYER_ONE), Location.GAME_BOARD, new Coordinate(col, row, index));
-					//tile.gameObject.GetComponent<Renderer>().material.color = Color.magenta;
-					tile.gameObject.GetComponent<Renderer>().material.color = taicho.board[row, col].CharacterPlayer.getPlayerColor();
 				} else if (((col == 10) && (row % 2 == 0))
 				           || ((col == 9 || col == 11) && (row % 2 == 1))) {
 					// position is Player Two Samurai
 					taicho.board[row, col] = new BoardComponent(new OneUnit(Player.PLAYER_TWO), Location.GAME_BOARD, new Coordinate(col, row, index));
-					//tile.gameObject.GetComponent<Renderer>().material.color = Color.cyan;
-					tile.gameObject.GetComponent<Renderer>().material.color = taicho.board[row, col].CharacterPlayer.getPlayerColor();
+				} else if((col <= 2) && (row >= 3 && row <=5)){
+					// position is Player One Castle
+					taicho.board[row, col] = new BoardComponent(Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
+				} else if((col >= 12) && (row >= 3 && row <=5)){
+					// position is Player Two Castle
+					taicho.board[row, col] = new BoardComponent(Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
 				} else {
 					taicho.board[row, col] = new BoardComponent(Location.GAME_BOARD, new Coordinate(col, row, index));
 				}
 				//easy to have a reference to bc from gui object
 				tile.boardComponent = taicho.getBoardComponentAtId(index);
+				tile.updateSprite ();
 				tiles[index] = tile;
 				index++;
 				zOffset = 0;
@@ -127,7 +132,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	//They tile clicked will call this method
 	public void onTileClicked(Tile tile) {
 		try{
-			BoardComponent bc = tile.boardComponent;			
+			BoardComponent bc = tile.boardComponent;
 //			Debug.Log("Tile Selected :: " + tile);
 			if(bc.Location != Location.OUT_OF_BOUNDS){	//if player clicks on the game board
 				if(validMoves.Count == 0 && bc.Occupied) {		//if there is no valid moves (no BC selected)
@@ -176,10 +181,8 @@ public class TaichoGameGrid : MonoBehaviour {
 							//user clicked same BC twice, abort the BC selection
 							//if there is a selected BC then and the user clicked it a second time, 
 							//Then clear the valid moves array
-							tile.GetComponent<Renderer> ().material.color = selectedTile.boardComponent.CharacterPlayer.getPlayerColor();
 							selectedBc.Selected = false;
 							erasePossibleMoves();
-//TODO							eraseValidMoves();
 						}
 
 					}catch(BoardComponentNotFoundException bcnfe){
@@ -187,13 +190,10 @@ public class TaichoGameGrid : MonoBehaviour {
 					}
 				}
 			}else{
-				try{
+				if(selectedTile != null) {
 					BoardComponent selectedBc = selectedTile.boardComponent;
 					selectedBc.Selected = false;
-//TODO					eraseValidMoves();
 					erasePossibleMoves();
-				}catch(BoardComponentNotFoundException bcnfe){
-					Debug.LogError(bcnfe.Message);
 				}
 			}
 		}catch(BoardComponentNotFoundException bcnfe){
@@ -201,14 +201,17 @@ public class TaichoGameGrid : MonoBehaviour {
 		}catch(UnityException e){
 			Debug.LogError(e);
 		}
+
+		tile.updateSprite ();
+		if (selectedTile != null) {
+			selectedTile.updateSprite();
+		}
 		
 		//TODO setButtonState();
 	}
 
 	private void makeMove (Tile destinationTile) {
 		Player player = selectedTile.boardComponent.CharacterPlayer;
-		destinationTile.GetComponent<Renderer> ().material.color = player.getPlayerColor ();
-		selectedTile.GetComponent<Renderer> ().material.color = Color.white;
 		destinationTile.boardComponent.Character = selectedTile.boardComponent.removeCharacter ();
 		destinationTile.boardComponent.CharacterPlayer = player;
 		selectedTile.boardComponent.Selected = false;
@@ -244,8 +247,7 @@ public class TaichoGameGrid : MonoBehaviour {
 							baseBc.Character = newChar;
 							selectedBc.Selected = false;
 
-							//TODO Replace object with another character for each level
-							selectedTile.GetComponent<Renderer> ().material.color = Color.white;
+							selectedTile.updateSprite();
 							erasePossibleMoves ();
 
 							return true;
@@ -292,7 +294,8 @@ public class TaichoGameGrid : MonoBehaviour {
 				break;
 			}
 		}
-		destinationTile.GetComponent<Renderer> ().material.color = p.getPlayerColor ();
+		selectedTile.updateSprite ();
+		destinationTile.updateSprite ();
 		selectedBc.Selected = false;
 		erasePossibleMoves ();
 		return true;
@@ -328,6 +331,11 @@ public class TaichoGameGrid : MonoBehaviour {
 						Debug.Log("Game is over, taicho is dead");
 						this.taicho.gameWinner = oppressingCharacter.Player;
 						this.taicho.gameInPlay = false;
+
+						//TODO dont immediatly restart game, show menu
+						this.taicho.initialize();
+						createTiles();
+
 					}else{
 						//attacking character can beat victim using teammates
 						Debug.Log("Multiple samurais are about to kill you...");
@@ -336,8 +344,8 @@ public class TaichoGameGrid : MonoBehaviour {
 						victimBc.Character = attackingBc.removeCharacter();
 					}
 					attackingBc.Selected = false;
-					selectedTile.GetComponent<Renderer> ().material.color = Color.white;
-					victimsTile.GetComponent<Renderer> ().material.color = oppressingCharacter.Player.getPlayerColor();
+					selectedTile.updateSprite();
+					victimsTile.updateSprite();
 					erasePossibleMoves();
 					return true;
 				}
@@ -403,6 +411,7 @@ public class TaichoGameGrid : MonoBehaviour {
 		}
 		if (this.selectedTile != null && !preserveSelectedTile) {
 			this.selectedTile.disableHighlighter ();
+			this.selectedTile.updateSprite();
 			this.selectedTile = null;
 		}
 		this.validMoves.Clear();

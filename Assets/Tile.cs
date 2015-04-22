@@ -7,6 +7,8 @@ using com.cosmichorizons.basecomponents;
 public class Tile : MonoBehaviour {
 	public BoardComponent boardComponent;
 	public HighlightTileSprite highlighter;
+	public CharacterSprite characterSprite;
+
 //	private Coordinate coordinate;
 //	private Location location;
 //	private Color color = Color.black;
@@ -48,26 +50,12 @@ public class Tile : MonoBehaviour {
 	// TODO Find out if this works for mobile
 	void OnMouseDown () {
 		TaichoGameGrid taichoGg = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
-		Debug.Log (" taichogg ["+ taichoGg +"]");
-		if (this.boardComponent.Id == 1) {
+		if (this.boardComponent.Id == 8) {
 			//TODO change to use an actual button
 			taichoGg.onUnstackButtonClicked();
 		} else {
 			taichoGg.onTileClicked (this);
 		}
-
-//		Debug.Log ("You clicked a tile :: " + gameObject);
-//		//may not need to do this     gameObject.GetComponent<Tile>();
-//		Tile tile = gameObject.GetComponent<Tile>();
-//		Debug.Log (" Board Component clicked ["+ boardComponent +"]");
-//		if (boardComponent.Occupied) {
-//			tile.printImHere ();
-//			Debug.Log ("BC :: " + boardComponent);
-//			tile.GetComponent<Renderer> ().material.color = Color.green;
-//
-//
-//		}
-
 	}
 
 	void printImHere () {
@@ -112,4 +100,45 @@ public class Tile : MonoBehaviour {
 			this.boardComponent.Attackable = false;
 		}
 	}
+
+	public void initializeSprite (CharacterSprite sprite) {
+		this.characterSprite = sprite;
+		disableSprite ();
+	}
+
+	public void disableSprite () {
+		this.characterSprite.GetComponent<Renderer> ().enabled = false;
+	}
+
+	public void enableSprite () {
+		this.characterSprite.GetComponent<Renderer> ().enabled = true;
+	}
+
+	public void updateSprite () {
+		if (boardComponent != null && !boardComponent.Occupied) {
+			disableSprite ();
+		} else if (boardComponent != null) {
+			if (boardComponent.Character.Rank == Ranks.LEVEL_ONE) {
+				this.characterSprite.populateLevelOne ();
+			} else if (boardComponent.Character.Rank == Ranks.LEVEL_TWO) {
+				this.characterSprite.populateLevelTwo ();
+			} else if (boardComponent.Character.Rank == Ranks.LEVEL_THREE) {
+				this.characterSprite.populateLevelThree ();
+			} else if (boardComponent.Character.Rank == Ranks.TAICHO) {
+				this.characterSprite.populateTaicho ();
+			}
+
+			this.characterSprite.Color = boardComponent.CharacterPlayer.getPlayerColor();
+			enableSprite ();
+		} else {
+			Debug.LogError("null boardcompontent for tile" + this);
+		}
+	}
+
+	public void hide () {
+		this.GetComponent<Renderer> ().enabled = false;
+	}
+
+
+
 }
