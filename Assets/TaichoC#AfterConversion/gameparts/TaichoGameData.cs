@@ -29,6 +29,7 @@ namespace com.cosmichorizons.basecomponents
 		public void initialize () {
 			Debug.Log ("Initializing TaichoGameData");
 			gameWinner = Player.NONE;
+			gameInPlay = true;
 			//			this.moves = new LinkedList<ObjectMove>();
 			board = new BoardComponent[9, 15];
 //			setUpGame(); // set up of game is now done in TaichGameGrid so that we only have to loop board once

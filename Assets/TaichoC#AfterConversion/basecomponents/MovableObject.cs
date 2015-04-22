@@ -237,40 +237,41 @@ namespace com.cosmichorizons.basecomponents
 			return legalMoves;
 		}
 
-//		private bool canIBeKilled(TaichoGameData board, int id)
-//		{
-//			bool killed = false;
-//			int powerTally = 0;
-//			List<MoveManager> moves = SurroundingBCMoves.MoveManagerMoves;
-//			List<BoardComponent> surroundingBoardComponents = getSurroundingBoardComponents(board, id, moves);
-//			foreach (BoardComponent sbc in surroundingBoardComponents)
-//			{
-//				if (sbc.Occupied)
-//				{
-//					MovableObject character = sbc.Character;
-//					if (this.Player != character.Player)
-//					{
-//						powerTally += character.CombatValue;
-//					}
-//				}
-//			}
-//			if (powerTally >= this.CombatValue)
-//			{
-//				killed = true;
-//			}
-//			return killed;
-//		}
+		private bool canIBeKilled(TaichoGameData board, int id)
+		{
+			bool killed = false;
+			int powerTally = 0;
+			SurroundingBoardComponentMovesClass surroundingBcMoves = new SurroundingBoardComponentMovesClass ();
+			MoveClass[] moves = surroundingBcMoves.getMoves ();
+			List<BoardComponent> surroundingBoardComponents = getSurroundingBoardComponents(board, id, moves);
+			foreach (BoardComponent sbc in surroundingBoardComponents)
+			{
+				if (sbc.Occupied)
+				{
+					MovableObject character = sbc.Character;
+					if (this.Player != character.Player)
+					{
+						powerTally += character.CombatValue;
+					}
+				}
+			}
+			if (powerTally >= this.CombatValue)
+			{
+				killed = true;
+			}
+			return killed;
+		}
 
-//		private List<BoardComponent> getSurroundingBoardComponents(TaichoGameData board, int id, List<MoveManager> mm)
-//		{
-//			List<BoardComponent> surroundingBoardComponents = new List<BoardComponent>();
-//			foreach (MoveManager move in mm)
-//			{
-//				int changeVal = move.NumVal;
-//				surroundingBoardComponents.Add(board.getBoardComponentAtId(id + changeVal));
-//			}
-//			return surroundingBoardComponents;
-//		}
+		private List<BoardComponent> getSurroundingBoardComponents(TaichoGameData board, int id, MoveClass[] mm)
+		{
+			List<BoardComponent> surroundingBoardComponents = new List<BoardComponent>();
+			foreach (MoveClass move in mm)
+			{
+				int changeVal = move.getValue();
+				surroundingBoardComponents.Add(board.getBoardComponentAtId(id + changeVal));
+			}
+			return surroundingBoardComponents;
+		}
 
 		/// <summary>
 		/// called if the chosen object is a Taicho ranked object
@@ -328,7 +329,7 @@ namespace com.cosmichorizons.basecomponents
 										//unoccupied BC
 									potentialPosition.Highlight = true;
 									legalMoves.Add(potentialPosition);
-									if (potentialPosition.Barrier)
+									if (potentialPosition.Barrier /*Could same player unit enter his taicho*/)
 									{
 										blockedPath = true;
 									}
@@ -355,16 +356,13 @@ namespace com.cosmichorizons.basecomponents
 											Console.WriteLine("Found a potential enemy of " + this.ToString() + " at -- " + potentialPosition.Coordinate.ToString());
 											potentialPosition.Attackable = true;
 											legalMoves.Add(potentialPosition);
+										} else if (potentialOpponent.canIBeKilled(board, potentialPosition.Id)) {
+											//potential oppenent can be killed by using multiple samurai
+											Console.WriteLine("A potential enemy can be killed by adding multiple samurais");
+											potentialPosition.Attackable = true;
+											potentialOpponent.SurroundedByEnemies = true;
+											legalMoves.Add(potentialPosition);
 										}
-										//TODO
-//										else if (potentialOpponent.canIBeKilled(board, potentialPosition.Id))
-//										{
-//											//potential oppenent can be killed by using multiple samurai
-//											Console.WriteLine("A potential enemy can be killed by adding multiple samurais");
-//											potentialPosition.Attackable = true;
-//											potentialOpponent.SurroundedByEnemies = true;
-//											legalMoves.Add(potentialPosition);
-//										}
 									}
 									blockedPath = true;
 								}

@@ -19,7 +19,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
 	private Tile selectedTile;
 	public TaichoGameData taicho = new TaichoGameData ();
-	public List<BoardComponent> validMoves = new List<BoardComponent>();
+	public List<BoardComponent> validMoves;
 	//List<BoardComponent> validMoves; // An array containing the legal moves for the
 	// current player.
 
@@ -83,6 +83,12 @@ public class TaichoGameGrid : MonoBehaviour {
 				} else {
 					taicho.board[row, col] = new BoardComponent(Location.GAME_BOARD, new Coordinate(col, row, index));
 				}
+				if( ( col == 3 || col == 11 ) && ( row >= 3  && row <= 5) ){
+					//Board component is a barrier
+					taicho.getBoardComponentAtId(index).Barrier = true;
+					tile.GetComponent<Renderer> ().material.color = Color.magenta; //TODO REMOVE
+				}
+
 				//easy to have a reference to bc from gui object
 				tile.boardComponent = taicho.getBoardComponentAtId(index);
 				tile.updateSprite ();
@@ -94,6 +100,7 @@ public class TaichoGameGrid : MonoBehaviour {
 			xOffset = 0;
 		}
 
+		validMoves = new List<BoardComponent> ();
 		Debug.Log ("Game Board object have been created");
 
 
@@ -323,29 +330,32 @@ public class TaichoGameGrid : MonoBehaviour {
 					Debug.Log("Yup, not looking good for you :: " + victimBc.Character);
 					if(oppressingCharacter.CombatValue >= victimCharacter.CombatValue && victimCharacter.Rank != Ranks.TAICHO){
 						Debug.Log("...Bummer, you've been attacked -- " + victimBc.Character);
-						//	    				victimBc.removeCharacter(); //dead
 						//addTurn(currentPlayer, attackingBc.getCoordinate(), victimBc.getCoordinate(), ObjectMove.MOVE_TYPE.ATTACK, victimBc.removeCharacter() );
-						victimBc.Character = attackingBc.removeCharacter();
+						victimBc.Character = attackingBc.removeCharacter(); 
+						selectedTile.updateSprite();
+						victimsTile.updateSprite();
 					}else if(oppressingCharacter.CombatValue >= victimCharacter.CombatValue && victimCharacter.Rank == Ranks.TAICHO){
 						// A taicho character has been killed, game is over
 						Debug.Log("Game is over, taicho is dead");
+						victimBc.Character = attackingBc.removeCharacter();
+						erasePossibleMoves();
 						this.taicho.gameWinner = oppressingCharacter.Player;
 						this.taicho.gameInPlay = false;
 
 						//TODO dont immediatly restart game, show menu
+						victimBc.removeCharacter();
 						this.taicho.initialize();
 						createTiles();
-
+						validMoves.Clear();
 					}else{
 						//attacking character can beat victim using teammates
 						Debug.Log("Multiple samurais are about to kill you...");
-						//	    				victimBc.removeCharacter();
 						//addTurn(currentPlayer, attackingBc.getCoordinate(), victimBc.getCoordinate(), ObjectMove.MOVE_TYPE.ATTACK, victimBc.removeCharacter() );
 						victimBc.Character = attackingBc.removeCharacter();
+						selectedTile.updateSprite();
+						victimsTile.updateSprite();
 					}
 					attackingBc.Selected = false;
-					selectedTile.updateSprite();
-					victimsTile.updateSprite();
 					erasePossibleMoves();
 					return true;
 				}
@@ -392,7 +402,7 @@ public class TaichoGameGrid : MonoBehaviour {
      */
 	private bool validSelection(BoardComponent bc) {
 		foreach (BoardComponent vbc in validMoves) {
-			if (vbc.Coordinate == bc.Coordinate) {
+			if (vbc.Coordinate.Id == bc.Coordinate.Id) {
 				return true;
 			}
 		}

@@ -12,10 +12,10 @@
 		MOVE_TWO = 10,
 		MOVE_THREE = 8,
 		MOVE_FOUR = 9,
-			MOVE_FIVE = -1,
-			MOVE_SIX = -10,
-			MOVE_SEVEN = -8,
-			MOVE_EIGHT = -9
+		MOVE_FIVE = -1,
+		MOVE_SIX = -10,
+		MOVE_SEVEN = -8,
+		MOVE_EIGHT = -9
 
 //		private int numVal;
 //
