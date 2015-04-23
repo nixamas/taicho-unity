@@ -14,6 +14,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	public Tile tilePrefab;	//defined in GUI
 	public HighlightTileSprite highlightTileSpritePrefab;
 	public CharacterSprite characterSpritePrefab;
+	public AudioClip slideAudio;
 	private Tile[] tiles = new Tile[tilesCount];
 
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
@@ -216,6 +217,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	}
 
 	private void makeMove (Tile destinationTile) {
+		AudioSource.PlayClipAtPoint(slideAudio, new Vector3(transform.position.x, transform.position.y, transform.position.z));
 		Player player = selectedTile.boardComponent.CharacterPlayer;
 		destinationTile.boardComponent.Character = selectedTile.boardComponent.removeCharacter ();
 		destinationTile.boardComponent.CharacterPlayer = player;
@@ -340,12 +342,7 @@ public class TaichoGameGrid : MonoBehaviour {
 						this.taicho.gameInPlay = false;
 
 						//TODO dont immediatly restart game, show menu
-						destroyTiles();
-						victimBc.removeCharacter();
-						this.taicho = new TaichoGameData();
-						this.taicho.initialize();
-						createTiles();
-						validMoves.Clear();
+						Application.LoadLevel ("GameBoardScene");
 					}else{
 						//attacking character can beat victim using teammates
 						Debug.Log("Multiple samurais are about to kill you...");
