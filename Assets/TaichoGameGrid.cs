@@ -45,6 +45,10 @@ public class TaichoGameGrid : MonoBehaviour {
 				// draw rows
 				zOffset += distanceBetweenTiles * row;
 				Tile tile = (Tile)Instantiate(tilePrefab, new Vector3(transform.position.x + xOffset, transform.position.y, transform.position.z + zOffset), transform.rotation);
+
+				//Load a random stone image for tile texture TODO do something else
+				tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/stone" + Random.Range(1,6) + ".png", typeof(Texture));
+
 				HighlightTileSprite highlight = (HighlightTileSprite)Instantiate(highlightTileSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
 				tile.initializeHighlighter(highlight);
 				CharacterSprite sprite = (CharacterSprite)Instantiate(characterSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
@@ -86,7 +90,6 @@ public class TaichoGameGrid : MonoBehaviour {
 				if( ( col == 3 || col == 11 ) && ( row >= 3  && row <= 5) ){
 					//Board component is a barrier
 					taicho.getBoardComponentAtId(index).Barrier = true;
-					tile.GetComponent<Renderer> ().material.color = Color.magenta; //TODO REMOVE
 				}
 
 				//easy to have a reference to bc from gui object

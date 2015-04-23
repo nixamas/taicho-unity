@@ -14,23 +14,7 @@ using com.cosmichorizons.enums;
 using com.cosmichorizons.basecomponents;
 using com.cosmichorizons.interfaces;
 public class SurroundingBoardComponentMovesClass: LegalMoves
-{
-	//	public enum LevelOneLegalMoves
-	//	{
-	//		MOVE_ONE = 1,
-	//		MOVE_TWO = 10,
-	//		MOVE_THREE = 8,
-	//		MOVE_FOUR = 9,
-	//		MOVE_FIVE = -1,
-	//		MOVE_SIX = -10,
-	//		MOVE_SEVEN = -8,
-	//		MOVE_EIGHT = -9,
-	//	}
-	
-	//	public LevelOneLegalMovesClass ()
-	//	{
-	//	}
-	
+{	
 	public override MoveClass[] getMoves () {
 		MoveClass[] moves = new MoveClass[8];
 		moves [0] = new MoveClass (1);
@@ -50,43 +34,13 @@ public class SurroundingBoardComponentMovesClass: LegalMoves
 	
 	public override int getBufferValue ()
 	{
-		return 2;
+		return -1;
 	}
 	
 	/**
-	 * +9,+18 --> M4,M2
-	 * -1,-2  --> M7,M5
-	 * -9,-18 --> M8,M6
-	 * +1,+2  --> M3,M1
 	 */
 	public override List<List<MoveClass>> getBlockablePathsOfMoves () {
-		List<List<MoveClass>> moves = new List<List<MoveClass>>();
-		MoveClass[] myMoves = getMoves ();
-		
-		for(int i = 0; i < 4; i++){
-			moves.Add(new List<MoveClass>());
-			switch(i){
-			case 0:
-				moves[i].Add(myMoves[3]);
-				moves[i].Add(myMoves[1]);
-				break;
-			case 1:
-				moves[i].Add(myMoves[6]);
-				moves[i].Add(myMoves[4]);
-				break;
-			case 2:
-				moves[i].Add(myMoves[7]);
-				moves[i].Add(myMoves[5]);
-				break;
-			case 3:
-				moves[i].Add(myMoves[2]);
-				moves[i].Add(myMoves[0]);
-				break;
-			default:
-				break;
-			}
-		}
-		return moves;
+		return new List<List<MoveClass>>();
 	}
 }
 

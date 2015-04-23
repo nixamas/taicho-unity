@@ -3,21 +3,12 @@ using System.Collections.Generic;
 
 namespace com.cosmichorizons.basecomponents
 {
-
-	//import java.awt.Color;
-
-	//using Color = com.badlogic.gdx.graphics.Color;
 	using ComponentImages = com.cosmichorizons.enums.ComponentImages;
-//	using LevelOneLegalMoves = com.cosmichorizons.enums.LevelOneLegalMoves;
-//	using LevelThreeLegalMoves = com.cosmichorizons.enums.LevelThreeLegalMoves;
-//	using LevelTwoLegalMoves = com.cosmichorizons.enums.LevelTwoLegalMoves;
 	using Location = com.cosmichorizons.enums.Location;
 	using Player = com.cosmichorizons.enums.Player;
 	using Ranks = com.cosmichorizons.enums.Ranks;
 	using SurroundingBCMoves = com.cosmichorizons.enums.SurroundingBCMoves;
 	using BoardComponentNotFoundException = com.cosmichorizons.exceptions.BoardComponentNotFoundException;
-	// TODO NEED TO FIX THIS!!!!!!!!!
-//	using TaichoGameData = com.cosmichorizons.gameparts.TaichoGameData;
 	using MoveManager = com.cosmichorizons.interfaces.MoveManager;
 
 
@@ -34,7 +25,6 @@ namespace com.cosmichorizons.basecomponents
 		protected internal int combatValue;
 		protected internal Player player;
 		protected internal Ranks rank;
-	//	protected final ComponentImages imageLocation;
 		private bool surroundedByEnemies = false;
 
 		/// <summary>
@@ -77,13 +67,6 @@ namespace com.cosmichorizons.basecomponents
 				return this.combatValue;
 			}
 		}
-	//	public Color getColor() {
-	//		return player.getColor();
-	//	}
-	//
-	//	public void setColor(Color color) {
-	//		this.player.setColor(color);
-	//	}
 		public virtual Player Player
 		{
 			set
@@ -129,11 +112,6 @@ namespace com.cosmichorizons.basecomponents
 				this.rank = value;
 			}
 		}
-
-
-	//	public ComponentImages getImageLocation() {
-	//		return imageLocation;
-	//	}
 
 		public virtual bool SurroundedByEnemies
 		{

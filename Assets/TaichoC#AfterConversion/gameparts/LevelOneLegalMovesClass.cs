@@ -14,22 +14,6 @@ using com.cosmichorizons.basecomponents;
 using com.cosmichorizons.interfaces;
 public class LevelOneLegalMovesClass: LegalMoves
 {
-//	public enum LevelOneLegalMoves
-//	{
-//		MOVE_ONE = 1,
-//		MOVE_TWO = 10,
-//		MOVE_THREE = 8,
-//		MOVE_FOUR = 9,
-//		MOVE_FIVE = -1,
-//		MOVE_SIX = -10,
-//		MOVE_SEVEN = -8,
-//		MOVE_EIGHT = -9,
-//	}
-
-//	public LevelOneLegalMovesClass ()
-//	{
-//	}
-
 	public override MoveClass[] getMoves () {
 		MoveClass[] moves = new MoveClass[8];
 		moves [0] = new MoveClass (1);
@@ -51,10 +35,6 @@ public class LevelOneLegalMovesClass: LegalMoves
 	{
 		return 1;
 	}
-
-//	public static void main(){
-//
-//	}
 
 	public override List<List<MoveClass>> getBlockablePathsOfMoves () {
 		List<List<MoveClass>> moves = new List<List<MoveClass>>();

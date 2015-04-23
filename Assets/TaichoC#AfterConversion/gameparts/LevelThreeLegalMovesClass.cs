@@ -31,10 +31,6 @@ public class LevelThreeLegalMovesClass: LegalMoves
 		return moves;
 	}
 
-//	public List<MoveClass> getMovesAsList () {
-//
-//	}
-
 	public override int getMove (int i) {
 		return getMoves ()[i].getValue ();
 	}

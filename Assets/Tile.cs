@@ -128,7 +128,7 @@ public class Tile : MonoBehaviour {
 				this.characterSprite.populateTaicho ();
 			}
 
-			this.characterSprite.Color = boardComponent.CharacterPlayer.getPlayerColor();
+			this.characterSprite.Color = getRanksColor(boardComponent.Character.Rank, boardComponent.Character.Player);//boardComponent.CharacterPlayer.getPlayerColor();
 			enableSprite ();
 		} else {
 			Debug.LogError("null boardcompontent for tile" + this);
@@ -139,6 +139,26 @@ public class Tile : MonoBehaviour {
 		this.GetComponent<Renderer> ().enabled = false;
 	}
 
+	public Color getRanksColor (Ranks rank, Player player) {
+		Color color = Color.black;
+		if (player == Player.PLAYER_ONE) {
+			switch (rank) {
+			case Ranks.LEVEL_ONE:
+				color = TaichoColors.PLAYERONE_LVL1; 
+				break;
+			case Ranks.LEVEL_TWO:
+				color = TaichoColors.PLAYERONE_LVL2; 
+				break;
+			case Ranks.LEVEL_THREE:
+				color = TaichoColors.PLAYERONE_LVL3; 
+				break;
+			case Ranks.TAICHO:
+				color = TaichoColors.PLAYERONE_TAICHO; 
+				break;
+			}
+		}
+		return color;
+	}
 
 
 }
