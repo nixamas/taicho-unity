@@ -59,18 +59,15 @@ public class TaichoGameGrid : MonoBehaviour {
 				if ( (col < 3 && (row < 3 || row > 5) || (col > 11 && (row < 3 || row > 5)))){
 					//Debug.Log("skipping displaying tile at coordinate column[" + col + "] - row[" + row + "]");
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.NONE), Location.OUT_OF_BOUNDS, new Coordinate(col, row, index));
-					//TODO replace with actual unstack button logic
-					if (index == 8) {
-						tile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-					} else {
-						tile.hide ();
-					}
+					tile.hide ();
 				} else if (row == 4 && col == 1) {
 					// position is Player One Taicho
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_ONE), Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
+					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if (row == 4 && col == 13) {
 					// position is Player Two Taicho
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_TWO), Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
+					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if (((col == 4) && (row % 2 == 0))
 				           || ((col == 3 || col == 5) && (row % 2 == 1))) {
 					// position is Player One Samurai
@@ -82,9 +79,11 @@ public class TaichoGameGrid : MonoBehaviour {
 				} else if((col <= 2) && (row >= 3 && row <=5)){
 					// position is Player One Castle
 					taicho.board[row, col] = new BoardComponent(Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
+					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if((col >= 12) && (row >= 3 && row <=5)){
 					// position is Player Two Castle
 					taicho.board[row, col] = new BoardComponent(Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
+					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else {
 					taicho.board[row, col] = new BoardComponent(Location.GAME_BOARD, new Coordinate(col, row, index));
 				}
@@ -113,7 +112,15 @@ public class TaichoGameGrid : MonoBehaviour {
 
 
 
-
+	public bool shouldUnstackButtonBeEnabled () {
+		if (selectedTile != null 
+		    && selectedTile.boardComponent != null 
+		    && selectedTile.boardComponent.Occupied 
+			&& (selectedTile.boardComponent.Character.Rank == Ranks.LEVEL_TWO || selectedTile.boardComponent.Character.Rank == Ranks.LEVEL_THREE)) {
+			return true;
+		}
+		return false;
+	}
 
 
 	public void onUnstackButtonClicked() {

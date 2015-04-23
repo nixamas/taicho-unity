@@ -50,12 +50,7 @@ public class Tile : MonoBehaviour {
 	// TODO Find out if this works for mobile
 	void OnMouseDown () {
 		TaichoGameGrid taichoGg = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
-		if (this.boardComponent.Id == 8) {
-			//TODO change to use an actual button
-			taichoGg.onUnstackButtonClicked();
-		} else {
-			taichoGg.onTileClicked (this);
-		}
+		taichoGg.onTileClicked (this);
 	}
 
 	void printImHere () {
