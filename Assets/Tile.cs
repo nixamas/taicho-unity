@@ -156,6 +156,21 @@ public class Tile : MonoBehaviour {
 				color = TaichoColors.PLAYERONE_TAICHO; 
 				break;
 			}
+		} else if (player == Player.PLAYER_TWO) {
+			switch (rank) {
+			case Ranks.LEVEL_ONE:
+				color = TaichoColors.PLAYERTWO_LVL1; 
+				break;
+			case Ranks.LEVEL_TWO:
+				color = TaichoColors.PLAYERTWO_LVL2; 
+				break;
+			case Ranks.LEVEL_THREE:
+				color = TaichoColors.PLAYERTWO_LVL3; 
+				break;
+			case Ranks.TAICHO:
+				color = TaichoColors.PLAYERTWO_TAICHO; 
+				break;
+			}
 		}
 		return color;
 	}

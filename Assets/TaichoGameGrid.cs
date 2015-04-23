@@ -9,7 +9,7 @@ using com.cosmichorizons.exceptions;
 public class TaichoGameGrid : MonoBehaviour {
 	private int rows = 9;
 	private int columns = 15;
-	private float distanceBetweenTiles = 2.3F;
+	private float distanceBetweenTiles = 2.1F;
 	private static int tilesCount = 135;
 	public Tile tilePrefab;	//defined in GUI
 	public HighlightTileSprite highlightTileSpritePrefab;
@@ -37,6 +37,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	void createTiles() {
 		float xOffset = 0.0F;
 		float zOffset = 0.0F;
+		tiles = new Tile[tilesCount];
 		int index = 0;
 		for (var col = 0; col < columns; col++) {
 			xOffset += distanceBetweenTiles * col;
@@ -105,19 +106,6 @@ public class TaichoGameGrid : MonoBehaviour {
 
 		validMoves = new List<BoardComponent> ();
 		Debug.Log ("Game Board object have been created");
-
-
-		
-		
-//		for(int tilesCreated = 0; tilesCreated < 6; tilesCreated += 1) {
-//	        xOffset += distanceBetweenTiles;
-//	        
-//	        if(tilesCreated % 3 == 0) {
-//	            zOffset += distanceBetweenTiles;
-//	            xOffset = 0;
-//	        }
-//	        Instantiate(tilePrefab, new Vector3(transform.position.x + xOffset, transform.position.y, transform.position.z + zOffset), transform.rotation);
-//	    }
 	}
 
 
@@ -319,7 +307,6 @@ public class TaichoGameGrid : MonoBehaviour {
 	 * @return
 	 */
 	public bool attackObject(Tile victimsTile){
-		//    public boolean attackObject(BoardComponent victimBc){
 		Debug.Log("Look at me ma, I'm attacking!!!");
 		BoardComponent victimBc = victimsTile.boardComponent;
 		BoardComponent attackingBc = selectedTile.boardComponent;
@@ -346,7 +333,9 @@ public class TaichoGameGrid : MonoBehaviour {
 						this.taicho.gameInPlay = false;
 
 						//TODO dont immediatly restart game, show menu
+						destroyTiles();
 						victimBc.removeCharacter();
+						this.taicho = new TaichoGameData();
 						this.taicho.initialize();
 						createTiles();
 						validMoves.Clear();
@@ -375,27 +364,6 @@ public class TaichoGameGrid : MonoBehaviour {
 		return false;
 	}
 
-
-//	/**
-//     * This is called by mousePressed() when a player clicks on the
-//     * square in the specified row and col. If this BC is a valid selection 
-//     * get the valid moves that the selected character could travel
-//     */
-//	private void selectBoardComponent(int row, int col) {
-//		//TODO doIneedThisStatement Debug.Log("doClickSquare");
-//		BoardComponent bc = board.pieceAt(row, col);
-//		if(bc.isOccupied()){
-//			if(validMoves.isEmpty()){
-//				bc.Selected = true;
-//				//TODO doIneedThisStatement Debug.Log("you clicked BoardComponent with ID of -- " + bc.getId());
-//				validMoves = bc.Character.getPossibleMoves(board, bc);
-//			}
-//		}
-//		
-//		board.getCoordinateOfId(bc.getId());
-//		board.getBoardComponentAtId(bc.getId());
-//		repaint();
-//	}  //
 
 
 	/**
@@ -460,12 +428,20 @@ public class TaichoGameGrid : MonoBehaviour {
 			Tile tile = getTileForBoardComponent( this.validMoves[i] );
 			if(!tile.boardComponent.Occupied && tile.boardComponent.Location != Location.OUT_OF_BOUNDS) {
 				tile.highlightMove ();
-//				tile.GetComponent<Renderer> ().material.
 			} else if (tile.boardComponent.CharacterPlayer == selectedTile.boardComponent.CharacterPlayer) { 
 				tile.highlightStack ();
 			} else if (isOpposingPlayers(tile.boardComponent, selectedTile.boardComponent)) {
 				tile.highlightAttack ();
 			}
 		}
+	}
+
+	private void destroyTiles () {
+		for (int i = 0; i < tilesCount; i++) {
+//			tiles[i].hide();
+			GameObject.Destroy(tiles[i]);
+			tiles[i] = null;
+		}
+		tiles = new Tile[tilesCount];
 	}
 }

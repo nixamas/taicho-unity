@@ -11,11 +11,14 @@ using System;
 using UnityEngine;
 public class TaichoColors
 {
-	public static Color PLAYERONE_LVL1 = new Color(0.968F,0.835F,0.219F,1F);
-	public static Color PLAYERONE_LVL2 = new Color(0.749F,0.635F,0.18F,1F);
-	public static Color PLAYERONE_LVL3 = new Color(0.467F,0.408F,0.114F,1F);
-	public static Color PLAYERONE_TAICHO = new Color(0.1F,0.1F,0.1F,1F); //TODO
-	
+	public static Color PLAYERONE_LVL1 = new Color(0.302F,0.537F,0.388F,1F);
+	public static Color PLAYERONE_LVL2 = new Color(0.302F,0.537F,0.388F,1F);
+	public static Color PLAYERONE_LVL3 = new Color(0.302F,0.537F,0.388F,1F);
+	public static Color PLAYERONE_TAICHO = new Color(0.412F,0.647F,0.514F); //TODO
+	public static Color PLAYERTWO_LVL1 = new Color(0.624F,0.008F,0.318F,1F);
+	public static Color PLAYERTWO_LVL2 = new Color(0.624F,0.008F,0.318F,1F);
+	public static Color PLAYERTWO_LVL3 = new Color(0.624F,0.008F,0.318F,1F);
+	public static Color PLAYERTWO_TAICHO = new Color(0.925F,0.475F,0.604F,1F); //TODO
 
 
 	public TaichoColors ()
