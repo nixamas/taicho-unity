@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 999d892709a1e5a48b11791e1d59a603
+timeCreated: 1430022991
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - unstackButton: {fileID: 11429048, guid: fd1045ce75b58a74993bd9cb54830b6b, type: 2}
+  - audioManager: {fileID: 11443952, guid: 232e4538cb677254e861114019c7c526, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

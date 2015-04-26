@@ -14,7 +14,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	public Tile tilePrefab;	//defined in GUI
 	public HighlightTileSprite highlightTileSpritePrefab;
 	public CharacterSprite characterSpritePrefab;
-	public AudioClip slideAudio;
+	public AudioManager audioManager;
 	private Tile[] tiles = new Tile[tilesCount];
 
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
@@ -149,6 +149,7 @@ public class TaichoGameGrid : MonoBehaviour {
 					tile.highlightSelected ();
 					validMoves = bc.Character.getPossibleMoves(taicho, bc);
 					highlightPossibleMovesForSelectedComponent();
+					audioManager.playTileSelectedSound ();
 				}else if( !(validMoves.Count == 0) && validSelection(bc)){
 					// if there is a selected BC and user chose a valid BC
 					//TODO doIneedThisStatement Debug.Log("make move to new VALID square");
@@ -177,13 +178,14 @@ public class TaichoGameGrid : MonoBehaviour {
 						Debug.LogError(bcnfe.Message);
 					}
 //TODO					eraseValidMoves();
-					erasePossibleMoves();
+//					erasePossibleMoves();
 				}else if (selectedTile != null) {
 
 					//TODO doIneedThisStatement Debug.Log("checking if user clicked selected BC again. If so, Abort");
 					try{
 						BoardComponent selectedBc = selectedTile.boardComponent;
 						if(bc.Coordinate == selectedBc.Coordinate ){
+							audioManager.playTileSelectedSound ();
 							//user clicked same BC twice, abort the BC selection
 							//if there is a selected BC then and the user clicked it a second time, 
 							//Then clear the valid moves array
@@ -195,12 +197,12 @@ public class TaichoGameGrid : MonoBehaviour {
 						Debug.LogError(bcnfe.Message);
 					}
 				}
-			}else{
-				if(selectedTile != null) {
-					BoardComponent selectedBc = selectedTile.boardComponent;
-					selectedBc.Selected = false;
-					erasePossibleMoves();
-				}
+			} else if (selectedTile != null && tile.boardComponent == selectedTile.boardComponent) {	
+				//TODO fix this so that when a use clicks out of bounds the selected tile is unselected,
+				//condition above was added because interference with UI buttons
+				BoardComponent selectedBc = selectedTile.boardComponent;
+				selectedBc.Selected = false;
+				erasePossibleMoves();
 			}
 		}catch(BoardComponentNotFoundException bcnfe){
 			Debug.LogError(bcnfe.Message);
@@ -217,7 +219,7 @@ public class TaichoGameGrid : MonoBehaviour {
 	}
 
 	private void makeMove (Tile destinationTile) {
-		AudioSource.PlayClipAtPoint(slideAudio, new Vector3(transform.position.x, transform.position.y, transform.position.z));
+		this.audioManager.playTileSlideSound ();
 		Player player = selectedTile.boardComponent.CharacterPlayer;
 		destinationTile.boardComponent.Character = selectedTile.boardComponent.removeCharacter ();
 		destinationTile.boardComponent.CharacterPlayer = player;

@@ -2,40 +2,45 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class UIManager : MonoBehaviour {
-
+public class UIManagerGame : UIManager {
 	private TaichoGameGrid grid;
 	private Button unstackButton;
 	private Button gameMenuButton; 
-	private bool audioEnabled = true;
+	public AudioManager audioManager;
+
 
 	private bool isShowMenu = false;
 
 	// Use this for initialization
 	void Start () {
-		hideMenu ();
+//		hideMenu ();
+		if (this.grid == null && GameObject.FindGameObjectWithTag("TaichoGameGrid") != null) {
+			this.grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
+		}
+		this.isShowMenu = false;
+		updateMusicIcon ();
+		refreshMenu ();
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (unstackButton == null) {
-			unstackButton = GameObject.FindGameObjectWithTag("UnstackButton").GetComponent<Button> ();
+		//make sure these values are set
+		if (this.gameMenuButton == null) {
+			this.gameMenuButton = GameObject.FindGameObjectWithTag("GameMenuButton").GetComponent<Button> ();
 		}
-		if (gameMenuButton == null) {
-			gameMenuButton = GameObject.FindGameObjectWithTag("UnstackButton").GetComponent<Button> ();
+		if (this.grid == null) {
+			this.grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
 		}
-		if (grid == null) {
-			grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
+		if (this.unstackButton == null) {
+			//need to use findGameObjectWi... because explicitly linking it in GUI does not seem able to disable button, so member is private
+			this.unstackButton = GameObject.FindGameObjectWithTag("UnstackButton").GetComponent<Button> ();
 		}
-		if (grid != null && grid.shouldUnstackButtonBeEnabled()) {
-			unstackButton.GetComponent<Button> ().interactable = true;
+		if (this.grid != null && this.grid.shouldUnstackButtonBeEnabled()) {
+			this.unstackButton.GetComponent<Button> ().interactable = true;
 		} else {
-			unstackButton.GetComponent<Button> ().interactable = false;
+			this.unstackButton.GetComponent<Button> ().interactable = false;
 		}
-	}
-
-	public void StartGame() {
-		Application.LoadLevel ("GameBoardScene");
 	}
 
 	public void LoadTutorial () {
@@ -46,29 +51,40 @@ public class UIManager : MonoBehaviour {
 		Debug.Log ("TODO make settings page");
 	}
 
+	public void showStartingMenu () {
+		Application.LoadLevel ("MenuScene");
+	}
+
 	public void ShowGameMenu () {
 		Debug.Log ("Showing Game Menu");
+
 		this.isShowMenu = !this.isShowMenu;
 		refreshMenu ();
 	}
 
 	public void OnUnstackPressed () {
 		Debug.Log ("Unstack button pressed");
-		grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
-		grid.onUnstackButtonClicked ();
+		this.grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
+		this.grid.onUnstackButtonClicked ();
 	}
 
 	public void SoundControlButtonPressed () {
 		Debug.Log ("Sound Control button pressed");
-		audioEnabled = !audioEnabled;
+
 		GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().enabled = false;
-		if (audioEnabled) {
-			GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().sprite = (Sprite)Resources.LoadAssetAtPath ("Assets/Resources/Images/myMusicIconOff.png", typeof(Sprite));
-		} else {
-			GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().sprite = (Sprite)Resources.LoadAssetAtPath ("Assets/Resources/Images/myMusicIcon.png", typeof(Sprite));
-		}
+
+		this.audioManager.BackgroundAudio = !this.audioManager.BackgroundAudio;
+		updateMusicIcon ();
 		GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().enabled = true;
 		
+	}
+
+	private void updateMusicIcon () {
+		if (this.audioManager.BackgroundAudio) {
+			GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().sprite = (Sprite)Resources.LoadAssetAtPath ("Assets/Resources/Images/myMusicIcon.png", typeof(Sprite));
+		} else {
+			GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().sprite = (Sprite)Resources.LoadAssetAtPath ("Assets/Resources/Images/myMusicIconOff.png", typeof(Sprite));
+		}
 	}
 
 	private void refreshMenu () {
