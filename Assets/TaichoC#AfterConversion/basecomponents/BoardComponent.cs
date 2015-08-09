@@ -23,7 +23,7 @@ namespace com.cosmichorizons.basecomponents
 	{
 
 		private readonly Coordinate coordinate;
-		private readonly Location location;
+		private Location location;
 	//	private Color color = Color.BLACK;
 		private bool occupied = false;
 		private bool stackable = false;
@@ -103,6 +103,10 @@ namespace com.cosmichorizons.basecomponents
 			get
 			{
 				return location;
+			}
+			set
+			{
+				this.location = value;
 			}
 		}
 		public virtual int Id

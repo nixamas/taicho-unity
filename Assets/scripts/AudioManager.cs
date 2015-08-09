@@ -8,6 +8,7 @@ public class AudioManager : MonoBehaviour {
 
 	public AudioClip slideAudio;
 	public AudioClip tileSelectAudio;
+	public AudioClip characterDestroyedAudio;
 	public AudioSource backgroundMusicSource;
 	public bool playBackgroundAudio = false;
 	public virtual bool BackgroundAudio {
@@ -32,6 +33,10 @@ public class AudioManager : MonoBehaviour {
 
 	public void playTileSelectedSound () {
 		if (this.playBackgroundAudio) AudioSource.PlayClipAtPoint(this.tileSelectAudio, new Vector3(transform.position.x, transform.position.y, transform.position.z));
+	}
+
+	public void playCharacterDestroyedSound () {
+		if (this.playBackgroundAudio) AudioSource.PlayClipAtPoint(this.characterDestroyedAudio, new Vector3(transform.position.x, transform.position.y, transform.position.z));
 	}
 
 	// Use this for initialization

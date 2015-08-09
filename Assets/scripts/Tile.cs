@@ -9,46 +9,17 @@ public class Tile : MonoBehaviour {
 	public HighlightTileSprite highlighter;
 	public CharacterSprite characterSprite;
 
-//	private Coordinate coordinate;
-//	private Location location;
-//	private Color color = Color.black;
-//	private bool occupied = false;
-//	private bool stackable = false;
-//	private bool selected = false;
-//	private bool attackable = false;
-//	private bool barrier, timeServed;
-//	private MovableObject character;
-//	private bool highlight;
-
 	// Use this for initialization
 	void Start () {
 	}
 	
 	// Update is called once per frame
 	void Update () {
-//		if( Input.GetMouseButtonDown(0) ) {
-//			Ray ray = Camera.main.ScreenPointToRay( Input.mousePosition );
-//			RaycastHit hit;
-//			Debug.Log( "sdfsdfsdfsdfsdfsdfsdf" );
-//			
-//			if( Physics.Raycast( ray, out hit, 100 ) )
-//			{
-//				Debug.Log( hit.transform.gameObject.name );
-//			}
-//		}
 	}
-
-//	public void onTileSelected (Object selectedTile) {
-//		Debug.Log( "Tile.onDownEvent - " + selectedTile );
-//	}
-
-
-//	void OnMouseOver () {
-//
-//	}
 
 	// TODO Find out if this works for mobile
 	void OnMouseDown () {
+//		this.hide ();
 		TaichoGameGrid taichoGg = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
 		taichoGg.onTileClicked (this);
 	}
@@ -64,22 +35,30 @@ public class Tile : MonoBehaviour {
 
 	public void highlightSelected () {
 		enableHighlighter ();
-		this.highlighter.GetComponent<Renderer> ().material.color = Color.black;
+		if (boardComponent != null && boardComponent.Character.Player == Player.PLAYER_ONE) {
+			this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.TILE_SELECT_PLAYERONE;
+		} else {
+			this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.TILE_SELECT_PLAYERTWO;
+		}
 	}
 
 	public void highlightMove () {
 		enableHighlighter ();
-		this.highlighter.GetComponent<Renderer> ().material.color = Color.green;
+		this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.MOVE_MOVE;
 	}
 
 	public void highlightStack () {
 		enableHighlighter ();
-		this.highlighter.GetComponent<Renderer> ().material.color = Color.yellow;
+		if (boardComponent != null && boardComponent.Character.Player == Player.PLAYER_ONE) {
+			this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.TILE_STACK_PLAYERONE;
+		} else {
+			this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.TILE_STACK_PLAYERTWO;
+		}
 	}
 
 	public void highlightAttack () {
 		enableHighlighter ();
-		this.highlighter.GetComponent<Renderer> ().material.color = Color.red;
+		this.highlighter.GetComponent<Renderer> ().material.color = TaichoColors.MOVE_ATTACK;
 		this.boardComponent.Attackable = true;
 	}
 

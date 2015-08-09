@@ -11,23 +11,31 @@ public class TaichoGameGrid : MonoBehaviour {
 	private int columns = 15;
 	private float distanceBetweenTiles = 2.1F;
 	private static int tilesCount = 135;
+	public bool autostartGame = true;
 	public Tile tilePrefab;	//defined in GUI
 	public HighlightTileSprite highlightTileSpritePrefab;
 	public CharacterSprite characterSpritePrefab;
 	public AudioManager audioManager;
-	private Tile[] tiles = new Tile[tilesCount];
+	public Tile[] tiles = new Tile[tilesCount];
+	public bool disableTileSelection = false;
 
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
-	private Tile selectedTile;
+	public Tile selectedTile; //public so the tutorial can manually update game
 	public TaichoGameData taicho = new TaichoGameData ();
-	public List<BoardComponent> validMoves;
+	public List<BoardComponent> validMoves = new List<BoardComponent> ();
 	//List<BoardComponent> validMoves; // An array containing the legal moves for the
 	// current player.
 
 	// Use this for initialization
 	void Start () {
+		if (autostartGame) {
+			initialize ();
+		}
+	}
+
+	public void initialize() { 
 		taicho.initialize ();
-		createTiles();
+		createTiles ();
 	}
 	
 	// Update is called once per frame
@@ -49,7 +57,8 @@ public class TaichoGameGrid : MonoBehaviour {
 				Tile tile = (Tile)Instantiate(tilePrefab, new Vector3(transform.position.x + xOffset, transform.position.y, transform.position.z + zOffset), transform.rotation);
 
 				//Load a random stone image for tile texture TODO do something else
-				tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/stone" + Random.Range(1,6) + ".png", typeof(Texture));
+//				tile.GetComponent<Renderer> ().material.mainTexture = (Texture)UnityEditor.AssetDatabase.LoadAssetAtPath ("Assets/Resources/Images/stone" + Random.Range(1,6) + ".png", typeof(Texture));
+				tile.GetComponent<Renderer> ().material.color = TaichoColors.TAICHO_BOARD_TILE_TINT;
 
 				HighlightTileSprite highlight = (HighlightTileSprite)Instantiate(highlightTileSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
 				tile.initializeHighlighter(highlight);
@@ -64,11 +73,13 @@ public class TaichoGameGrid : MonoBehaviour {
 				} else if (row == 4 && col == 1) {
 					// position is Player One Taicho
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_ONE), Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
-					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
+					tile.GetComponent<Renderer> ().material.color = TaichoColors.TAICHO_BOARD_CASTLE_TINT;
+//					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)UnityEditor.AssetDatabase.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if (row == 4 && col == 13) {
 					// position is Player Two Taicho
+					tile.GetComponent<Renderer> ().material.color = TaichoColors.TAICHO_BOARD_CASTLE_TINT;
 					taicho.board[row, col] = new BoardComponent(new TaichoUnit(Player.PLAYER_TWO), Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
-					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
+//					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)UnityEditor.AssetDatabase.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if (((col == 4) && (row % 2 == 0))
 				           || ((col == 3 || col == 5) && (row % 2 == 1))) {
 					// position is Player One Samurai
@@ -80,11 +91,13 @@ public class TaichoGameGrid : MonoBehaviour {
 				} else if((col <= 2) && (row >= 3 && row <=5)){
 					// position is Player One Castle
 					taicho.board[row, col] = new BoardComponent(Location.PLAYER_ONE_CASTLE, new Coordinate(col, row, index));
-					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
+					tile.GetComponent<Renderer> ().material.color = TaichoColors.TAICHO_BOARD_CASTLE_TINT;
+//					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)UnityEditor.AssetDatabase.LoadAssetAtPath ("Assets/Resources/Images/castle1stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else if((col >= 12) && (row >= 3 && row <=5)){
 					// position is Player Two Castle
 					taicho.board[row, col] = new BoardComponent(Location.PLAYER_TWO_CASTLE, new Coordinate(col, row, index));
-					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)Resources.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
+					tile.GetComponent<Renderer> ().material.color = TaichoColors.TAICHO_BOARD_CASTLE_TINT;
+//					tile.GetComponent<Renderer> ().material.mainTexture = (Texture)UnityEditor.AssetDatabase.LoadAssetAtPath ("Assets/Resources/Images/castle2stone" + Random.Range(1,4) + ".png", typeof(Texture));
 				} else {
 					taicho.board[row, col] = new BoardComponent(Location.GAME_BOARD, new Coordinate(col, row, index));
 				}
@@ -108,11 +121,6 @@ public class TaichoGameGrid : MonoBehaviour {
 		Debug.Log ("Game Board object have been created");
 	}
 
-
-
-
-
-
 	public bool shouldUnstackButtonBeEnabled () {
 		if (selectedTile != null 
 		    && selectedTile.boardComponent != null 
@@ -134,9 +142,11 @@ public class TaichoGameGrid : MonoBehaviour {
 	}
 
 
-
 	//They tile clicked will call this method
 	public void onTileClicked(Tile tile) {
+		if (this.disableTileSelection) {
+			return;
+		}
 		try{
 			BoardComponent bc = tile.boardComponent;
 //			Debug.Log("Tile Selected :: " + tile);
@@ -158,27 +168,21 @@ public class TaichoGameGrid : MonoBehaviour {
 						
 						if( bc.Occupied && bc.Character.Player == selectedBc.Character.Player ){
 							//both square are occupied by the same player
-							Debug.Log("StackUnits");
 							stackUnits(tile);
-						}else if( bc.Occupied && bc.Character.Player != selectedBc.Character.Player ){
+						}else if( isOpposingPlayers(tile.boardComponent, selectedTile.boardComponent) ){
 							//both squares are occupied by opposite players
-							//TODO doIneedThisStatement Debug.Log("AttackUnits");
 							attackObject(tile);
 						}else if( !bc.Occupied ){
 							if(unstackObjects){
-								Debug.Log("UnstackUnits");
 								unstackUnits(tile);
 								unstackObjects = false;
 							}else{
-								Debug.Log("MoveUnits");
 								makeMove(tile);
 							}
 						}
 					}catch(BoardComponentNotFoundException bcnfe){
 						Debug.LogError(bcnfe.Message);
 					}
-//TODO					eraseValidMoves();
-//					erasePossibleMoves();
 				}else if (selectedTile != null) {
 
 					//TODO doIneedThisStatement Debug.Log("checking if user clicked selected BC again. If so, Abort");
@@ -214,8 +218,6 @@ public class TaichoGameGrid : MonoBehaviour {
 		if (selectedTile != null) {
 			selectedTile.updateSprite();
 		}
-		
-		//TODO setButtonState();
 	}
 
 	private void makeMove (Tile destinationTile) {
@@ -353,18 +355,19 @@ public class TaichoGameGrid : MonoBehaviour {
 						selectedTile.updateSprite();
 						victimsTile.updateSprite();
 					}
+					this.audioManager.playCharacterDestroyedSound();
 					attackingBc.Selected = false;
 					erasePossibleMoves();
 					return true;
 				}
 			}else{
 				//players were not right
-				Debug.Log("You cant attack your own team!");
+				//Debug.Log("You cant attack your own team!");
 				return false;
 			}
 		}else{
 			//one or both BC's are not occupied
-			Debug.Log("You cant attack empty squares");
+			//Debug.Log("You cant attack empty squares");
 			return false;
 		}
 		return false;
@@ -386,7 +389,7 @@ public class TaichoGameGrid : MonoBehaviour {
 		return false;
 	}
 
-	private void erasePossibleMoves () {
+	public void erasePossibleMoves () {
 		//destroy selected tile object
 		erasePossibleMoves(false);
 	}
@@ -404,10 +407,10 @@ public class TaichoGameGrid : MonoBehaviour {
 		this.validMoves.Clear();
 	}
 
-	private Tile getTileForBoardComponent(BoardComponent bc) {
+	public Tile getTileForBoardComponent(BoardComponent bc) {
 		for (int i = 0; i < tilesCount; i++) {
 			Tile tile = tiles[i];
-			if(tile.boardComponent == bc) {
+			if(tile.boardComponent.Id == bc.Id) {
 				return tile;
 			}
 		}
@@ -422,19 +425,19 @@ public class TaichoGameGrid : MonoBehaviour {
 		return false;
 	}
 
-	private void highlightPossibleUnstackMovesForSelectedComponent () {
+	public void highlightPossibleUnstackMovesForSelectedComponent () {
 		for (int i = 0; i < this.validMoves.Count; i++) {
 			Tile tile = getTileForBoardComponent( this.validMoves[i] );
 			tile.highlightMove();
 		}
 	}
 
-	private void highlightPossibleMovesForSelectedComponent () {
+	public void highlightPossibleMovesForSelectedComponent () {
 		for (int i = 0; i < this.validMoves.Count; i++) {
 			Tile tile = getTileForBoardComponent( this.validMoves[i] );
 			if(!tile.boardComponent.Occupied && tile.boardComponent.Location != Location.OUT_OF_BOUNDS) {
 				tile.highlightMove ();
-			} else if (tile.boardComponent.CharacterPlayer == selectedTile.boardComponent.CharacterPlayer) { 
+			} else if (tile.boardComponent.Character.Player == selectedTile.boardComponent.Character.Player) { 
 				tile.highlightStack ();
 			} else if (isOpposingPlayers(tile.boardComponent, selectedTile.boardComponent)) {
 				tile.highlightAttack ();
@@ -442,12 +445,20 @@ public class TaichoGameGrid : MonoBehaviour {
 		}
 	}
 
-	private void destroyTiles () {
+	public void destroyTiles () {
+		Debug.Log ("Destroying Game grid tiles");
+		erasePossibleMoves ();
 		for (int i = 0; i < tilesCount; i++) {
-//			tiles[i].hide();
 			GameObject.Destroy(tiles[i]);
 			tiles[i] = null;
 		}
 		tiles = new Tile[tilesCount];
 	}
+
+	public void disableCharacterSprites () {
+		foreach (Tile tile in tiles) {
+			tile.disableSprite ();
+		}
+	}
+
 }
