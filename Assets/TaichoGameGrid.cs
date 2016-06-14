@@ -5,6 +5,7 @@ using com.cosmichorizons.basecomponents;
 using com.cosmichorizons.characters;
 using com.cosmichorizons.enums;
 using com.cosmichorizons.exceptions;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class TaichoGameGrid : MonoBehaviour {
 	private int rows = 9;
@@ -21,21 +22,39 @@ public class TaichoGameGrid : MonoBehaviour {
 
 	private bool unstackObjects, showIcons; // Is a game currently in progress? //probably need to move these elsewhere
 	public Tile selectedTile; //public so the tutorial can manually update game
+	public Tile firstTileSelected, secondTileSelected;
 	public TaichoGameData taicho = new TaichoGameData ();
 	public List<BoardComponent> validMoves = new List<BoardComponent> ();
+
+
+	// Photon Network Unity Turnbased objects
+	protected internal Dictionary<int, GameObject> TileGameObjects;
+//	protected internal byte[] TileValues = new byte[tilesCount];
+
+
+
 	//List<BoardComponent> validMoves; // An array containing the legal moves for the
 	// current player.
 
 	// Use this for initialization
 	void Start () {
+		bool autoPopulateTiles = true;
+		if (NetworkManager.instance.rejoiningTaichoGame) {
+			Debug.Log ("TaichoGameGrid.Start() rejoining taicho game");
+			autoPopulateTiles = false;
+		}
 		if (autostartGame) {
-			initialize ();
+			initialize (autoPopulateTiles);
 		}
 	}
 
 	public void initialize() { 
+		initialize (true);
+	}
+
+	public void initialize(bool autoPopulateTiles) { 
 		taicho.initialize ();
-		createTiles ();
+		createTiles (autoPopulateTiles);
 	}
 	
 	// Update is called once per frame
@@ -43,7 +62,8 @@ public class TaichoGameGrid : MonoBehaviour {
 	
 	}
 
-	void createTiles() {
+	void createTiles(bool autoPopulateTiles) {
+		this.TileGameObjects = new Dictionary<int, GameObject>(tilesCount);
 		float xOffset = 0.0F;
 		float zOffset = 0.0F;
 		tiles = new Tile[tilesCount];
@@ -62,6 +82,7 @@ public class TaichoGameGrid : MonoBehaviour {
 
 				HighlightTileSprite highlight = (HighlightTileSprite)Instantiate(highlightTileSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
 				tile.initializeHighlighter(highlight);
+
 				CharacterSprite sprite = (CharacterSprite)Instantiate(characterSpritePrefab, new Vector3(transform.position.x + xOffset, transform.position.y+2, transform.position.z + zOffset), highlightTileSpritePrefab.transform.rotation);
 				tile.initializeSprite(sprite);
 
@@ -108,6 +129,10 @@ public class TaichoGameGrid : MonoBehaviour {
 
 				//easy to have a reference to bc from gui object
 				tile.boardComponent = taicho.getBoardComponentAtId(index);
+				if (!autoPopulateTiles) {
+					tile.boardComponent.removeCharacter ();
+				}
+				this.TileGameObjects.Add(index, tile.gameObject);
 				tile.updateSprite ();
 				tiles[index] = tile;
 				index++;
@@ -119,6 +144,96 @@ public class TaichoGameGrid : MonoBehaviour {
 
 		validMoves = new List<BoardComponent> ();
 		Debug.Log ("Game Board object have been created");
+	}
+
+	public int GetCubeTileIndex(GameObject cube)
+	{
+		foreach (KeyValuePair<int, GameObject> pair in TileGameObjects)
+		{
+			if (pair.Value.Equals(cube))
+			{
+				return pair.Key;
+			}
+		}
+		
+		Debug.LogError("Could not find Cube in Dict.");
+		return -1;
+	}
+	
+	protected internal Hashtable GetBoardAsCustomProperties()
+	{
+		Hashtable customProps = new Hashtable();
+		for (int i = 0; i < tilesCount; i++)
+		{
+			BoardComponent bc = TileGameObjects[i].GetComponent<Tile> ().boardComponent;
+			if (bc.Occupied) {
+				customProps[i.ToString()] = bc;
+			}
+		}
+		return customProps;
+	}
+
+	public Hashtable GetTurnCustomProperties () {
+		Hashtable customProps = new Hashtable ();
+		if (firstTileSelected == null || secondTileSelected == null) {
+			return customProps;
+		}
+		customProps["firstTileSelected"] = firstTileSelected.GetComponent<Tile> ().boardComponent;
+		customProps["secondTileSelected"] = secondTileSelected.GetComponent<Tile> ().boardComponent;
+		return customProps;
+	}
+
+	public void performTurnAction(BoardComponent sourceBc, BoardComponent destBc) {
+		Debug.Log("Performing Turn Action SourceBc["+sourceBc+"]   DestBC["+destBc+"]");
+	}
+
+	private void updateTileSprites () {
+		for (int i = 0; i < tilesCount; i++) {
+			tiles[i].GetComponent<Tile> ().updateSprite ();
+		}
+	}
+
+	protected internal bool SetBoardByCustomProperties(Hashtable customProps)
+	{
+		Debug.Log ("Set board by saved custom properties " + customProps);
+		int readTiles = 0;
+		for (int i = 0; i < tilesCount; i++) {
+			if (customProps.ContainsKey(i.ToString())) {
+				BoardComponent bc = (BoardComponent) customProps[i.ToString()];
+//				Debug.Log("BoardComponent recieved -- " +bc);
+				tiles[bc.Id].GetComponent<Tile> ().boardComponent = bc;
+				tiles[bc.Id].GetComponent<Tile> ().updateSprite ();
+				readTiles++;
+			} 
+//			else {
+//				tiles[i].GetComponent<Tile> ().boardComponent.removeCharacter ();
+//			}
+		}
+		if (readTiles == 0) {
+			Debug.Log ("No tiles loaded from custom properties");
+		}
+//		updateTileSprites ();
+
+		if (customProps["firstTileSelected"] != null) {
+//			Debug.Log("custom prop contains select Tile --  [" + customProps["firstTileSelected"] + "]");
+			BoardComponent bc = (BoardComponent) customProps["firstTileSelected"];
+			Debug.Log("firstTileSelected BoardComponent recieved -- " +bc);
+			tiles[bc.Id].GetComponent<Tile> ().boardComponent = bc;
+			tiles[bc.Id].GetComponent<Tile> ().updateSprite ();
+		} else {
+			Debug.Log ("No 'firstTileSelected' object found");
+		}
+
+		if (customProps["secondTileSelected"] != null) {
+//			Debug.Log("custom prop contains select Tile --  [" + customProps["secondTileSelected"] + "]");
+			BoardComponent bc = (BoardComponent) customProps["secondTileSelected"];
+			Debug.Log("secondTileSelected BoardComponent recieved -- " +bc);
+			tiles[bc.Id].GetComponent<Tile> ().boardComponent = bc;
+			tiles[bc.Id].GetComponent<Tile> ().updateSprite ();
+		} else {
+			Debug.Log ("No 'secondTileSelected' object found");
+		}
+		return true; //readTiles == tilesCount;
 	}
 
 	public bool shouldUnstackButtonBeEnabled () {
@@ -141,6 +256,11 @@ public class TaichoGameGrid : MonoBehaviour {
 		}
 	}
 
+	public void setTurnTiles(Tile firstTile, Tile secondTile) {
+		Debug.Log("Setting Turn Tiles 1ST["+firstTile.boardComponent+"]  ---  2ND["+secondTile.boardComponent+"]");
+		firstTileSelected = firstTile;
+		secondTileSelected = secondTile;
+	}
 
 	//They tile clicked will call this method
 	public void onTileClicked(Tile tile) {
@@ -168,11 +288,15 @@ public class TaichoGameGrid : MonoBehaviour {
 						
 						if( bc.Occupied && bc.Character.Player == selectedBc.Character.Player ){
 							//both square are occupied by the same player
+							setTurnTiles(selectedTile, tile);
 							stackUnits(tile);
 						}else if( isOpposingPlayers(tile.boardComponent, selectedTile.boardComponent) ){
+							setTurnTiles(selectedTile, tile);
 							//both squares are occupied by opposite players
 							attackObject(tile);
 						}else if( !bc.Occupied ){
+							//TODO need additional information to signify unstack over network
+							setTurnTiles(selectedTile, tile);
 							if(unstackObjects){
 								unstackUnits(tile);
 								unstackObjects = false;

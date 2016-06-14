@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using ExitGames.Client.Photon;
+using ExitGames.Client.Photon.LoadBalancing;
 
 public class UIManagerGame : UIManager {
 	public TaichoGameGrid grid;
@@ -15,12 +17,14 @@ public class UIManagerGame : UIManager {
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log("NetworkManager.instance.myUserName ["+NetworkManager.instance.myUserName+"]");
 //		hideMenu ();
 		if (this.grid == null && GameObject.FindGameObjectWithTag("TaichoGameGrid") != null) {
 			this.grid = (TaichoGameGrid) GameObject.FindGameObjectWithTag("TaichoGameGrid").GetComponent<TaichoGameGrid>();
 		}
 		this.isShowMenu = false;
 		updateMusicIcon ();
+		NetworkManager.instance.GameInstance.taichoGrid = grid;
 //		refreshMenu ();
 
 	}
@@ -44,6 +48,72 @@ public class UIManagerGame : UIManager {
 		} else {
 			this.unstackButton.GetComponent<Button> ().interactable = false;
 		}
+	}
+
+	public void OnGUI()
+	{
+		if (this.networkManager != null) {
+			this.networkManager.GuiInGame ();
+		} else {
+			// TODO Maybe do something here
+		}
+//		string stateLabel = "***";
+//		if (NetworkManager.instance.GameInstance.NickName != null)
+//			stateLabel += "name: [" + NetworkManager.instance.GameInstance.NickName + "]  ";
+//		if (NetworkManager.instance.roomToJoinName != null)
+//			stateLabel += "RoomName: [" + NetworkManager.instance.roomToJoinName + "]  ";
+//		if (NetworkManager.instance.GameInstance.NickName != null)
+//			stateLabel += "state: [" + NetworkManager.instance.GameInstance.State.ToString() + "]  ";
+//		GUILayout.Label(stateLabel);
+//		Rect leftToolbar = new Rect(NetworkManager.instance.leftToolbar.x, NetworkManager.instance.leftToolbar.y, NetworkManager.instance.leftToolbar.width, Screen.height - NetworkManager.instance.leftToolbar.y);
+//		GUILayout.BeginArea(leftToolbar);
+//		GUI.skin.button.stretchWidth = false;
+//		GUI.skin.button.fixedWidth = 150;
+//		
+//		if (NetworkManager.instance.GameInstance.CurrentRoom == null) {
+//			Debug.LogError("Game Instance is null!!!!!?!?!?!?");
+//		} else {
+//			// we are in a room, so we can access CurrentRoom and it's Players
+//			GUILayout.Label("In Room: " + NetworkManager.instance.GameInstance.CurrentRoom.Name);
+//			
+//			string interestingPropsAsString = NetworkManager.instance.FormatRoomProps();
+//			if (!string.IsNullOrEmpty(interestingPropsAsString))
+//			{
+//				GUILayout.Label("Props: " + interestingPropsAsString);
+//			}
+//			
+//			foreach (Player player in NetworkManager.instance.GameInstance.CurrentRoom.Players.Values)
+//			{
+//				if (player.ID == NetworkManager.instance.GameInstance.lastTurnPlayer)
+//				{
+//					GUILayout.Label(player.ToString() + " (played last)");
+//				}
+//				else
+//				{
+//					GUILayout.Label(player.ToString());
+//				}
+//			}
+//		}
+//		
+//		GUILayout.Space(15);
+//		
+//		GUILayout.Label("Save the board by ending the turn.");
+//		if (GUILayout.Button("End Turn " + NetworkManager.instance.GameInstance.turnNumber + " (Save)"))
+//		{
+//			NetworkManager.instance.GameInstance.SaveBoardAsProperty();
+//		}
+//		
+//		GUILayout.FlexibleSpace();
+//		
+//		if (GUILayout.Button("Leave (return later)"))
+//		{
+//			NetworkManager.instance.saveAndLeaveRoom ();
+//		}
+//		if (GUILayout.Button("Abandon"))
+//		{
+//			NetworkManager.instance.GameInstance.OpLeaveRoom(false);
+//		}
+//		GUILayout.EndArea();
 	}
 
 	public void LoadTutorial () {

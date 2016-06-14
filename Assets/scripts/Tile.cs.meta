@@ -1,12 +1,10 @@
 fileFormatVersion: 2
 guid: d89a12db5eda0434b866f049540ab117
-timeCreated: 1429736742
+timeCreated: 1439098394
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences:
-  - highlighter: {fileID: 11421744, guid: de9d727e9f9dc7d4cbe30ca75468e69e, type: 2}
-  - characterSprite: {fileID: 11493436, guid: 45ed509ceec8e9743810fec15694ce6a, type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

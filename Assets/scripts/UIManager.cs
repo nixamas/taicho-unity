@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class UIManager : MonoBehaviour {
+	public NetworkManager networkManager;
+
 	// Use this for initialization
 	void Start () {
 	}
@@ -13,5 +15,10 @@ public class UIManager : MonoBehaviour {
 
 	public void StartGame() {
 		Application.LoadLevel ("GameBoardScene");
+	}
+
+
+	public Color getColorSelected(Color color) {
+		return new Color(color.r, color.g, color.b);
 	}
 }
