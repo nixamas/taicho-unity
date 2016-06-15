@@ -36,13 +36,15 @@ public class NetworkManager : MonoBehaviour
 		}
 		else
 		{
+			Debug.LogWarning("Found another Network Manager instance in scene");
 			//If a Singleton already exists and you find
 			//another reference in scene, destroy it!
 			if(this != _instance)
+				Debug.LogWarning("Destroying object");
 				Destroy(this.gameObject);
 		}
 	}
-	
+		
 	public string myUserName {get; set;}
 	public string roomToJoinName {get; set;}// = "BewareTheInvisibleDragons-0795";
 
@@ -107,9 +109,6 @@ public class NetworkManager : MonoBehaviour
 		instance.GameInstance = null;
 	}
 	
-	
-
-	
 	public void Update()
 	{
 		
@@ -155,14 +154,18 @@ public class NetworkManager : MonoBehaviour
 
 	public void joinRoomByName () {
 		createTurnBasedRoom ();
+		Debug.Log("Joining room by name ["+instance.roomToJoinName+"]");
 		instance.GameInstance.OpJoinRoom(instance.roomToJoinName, -1);
 		Application.LoadLevel ("GameBoardScene");
 	}
 
 	public void joinRoomByName (bool createRoom, string roomName) {
+		instance.roomToJoinName = roomName;
 		if (createRoom) {
+			Debug.Log("Creating turned based room with name ["+instance.roomToJoinName+"]");
 			createTurnBasedRoom ();
 		}
+		Debug.Log("Joining room by name ["+instance.roomToJoinName+"]");
 		instance.GameInstance.OpJoinRoom(instance.roomToJoinName, -1);
 		Application.LoadLevel ("GameBoardScene");
 	}
@@ -182,9 +185,14 @@ public class NetworkManager : MonoBehaviour
 
 	public void saveAndLeaveRoom() {
 		Debug.Log("Saving and leaving the room");
-		instance.GameInstance.SaveBoardAsProperty();
+		saveRoom();
 		instance.GameInstance.OpLeaveRoom(true);
 		Application.LoadLevel ("LobbyScene");
+	}
+
+	public void saveRoom() {
+		Debug.Log("Saving room");
+		instance.GameInstance.SaveBoardAsProperty();
 	}
 
 	public void GuiInLobby()

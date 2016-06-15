@@ -21,4 +21,8 @@ public class UIManager : MonoBehaviour {
 	public Color getColorSelected(Color color) {
 		return new Color(color.r, color.g, color.b);
 	}
+
+	public NetworkManager getNetworkManager() {
+		return NetworkManager.instance;
+	}
 }

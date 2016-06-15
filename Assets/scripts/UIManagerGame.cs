@@ -24,7 +24,7 @@ public class UIManagerGame : UIManager {
 		}
 		this.isShowMenu = false;
 		updateMusicIcon ();
-		NetworkManager.instance.GameInstance.taichoGrid = grid;
+		getNetworkManager().GameInstance.taichoGrid = grid;
 //		refreshMenu ();
 
 	}
@@ -158,6 +158,10 @@ public class UIManagerGame : UIManager {
 		} else {
 			GameObject.FindGameObjectWithTag ("AudioManagerIcon").GetComponent<Image> ().sprite = musicOffIcon;
 		}
+	}
+
+	public void onTurnDonePressed () {
+		getNetworkManager().saveRoom();
 	}
 
 //	private void refreshMenu () {
